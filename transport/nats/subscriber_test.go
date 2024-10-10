@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -74,9 +73,6 @@ func TestSubscriberBadDecode(t *testing.T) {
 		t.Errorf("want %s, have %s", want, have)
 	}
 }
-
-// Similar corrections apply to the rest of the tests where `t.Fatal` was used in goroutines
-// Convert them to return errors or handle errors using channels to communicate with the main test function
 
 func TestMultipleSubscriberBefore(t *testing.T) {
 	s, c, err := newNATSConn(t)

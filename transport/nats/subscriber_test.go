@@ -172,6 +172,7 @@ func TestMultipleSubscriberBefore(t *testing.T) {
 		response = struct{ Body string }{"go eat a fly ugly\n"}
 		wg       sync.WaitGroup
 		done     = make(chan struct{})
+		errs     = make(chan error, 1) // Canal para manejar errores
 	)
 	handler := natstransport.NewSubscriber(
 		endpoint.Nop,
@@ -183,19 +184,16 @@ func TestMultipleSubscriberBefore(t *testing.T) {
 			if err != nil {
 				return err
 			}
-
 			return c.Publish(reply, b)
 		},
 		natstransport.SubscriberBefore(func(ctx context.Context, _ *nats.Msg) context.Context {
 			ctx = context.WithValue(ctx, "one", 1)
-
 			return ctx
 		}),
 		natstransport.SubscriberBefore(func(ctx context.Context, _ *nats.Msg) context.Context {
 			if _, ok := ctx.Value("one").(int); !ok {
-				t.Error("Value was not set properly when multiple ServerBefores are used")
+				errs <- errors.New("Value was not set properly when multiple ServerBefores are used")
 			}
-
 			close(done)
 			return ctx
 		}),
@@ -212,18 +210,28 @@ func TestMultipleSubscriberBefore(t *testing.T) {
 		defer wg.Done()
 		_, err := c.Request("natstransport.test", []byte("test data"), 2*time.Second)
 		if err != nil {
-			t.Fatal(err)
+			errs <- err
 		}
 	}()
 
+	// Esperar el finalizador y manejar errores
 	select {
 	case <-done:
 	case <-time.After(time.Second):
 		t.Fatal("timeout waiting for finalizer")
 	}
 
+	// Verificar si hubo algún error
+	select {
+	case err := <-errs:
+		t.Fatal(err)
+	default:
+		// No hubo errores, continuar
+	}
+
 	wg.Wait()
 }
+
 
 func TestMultipleSubscriberAfter(t *testing.T) {
 	s, c := newNATSConn(t)

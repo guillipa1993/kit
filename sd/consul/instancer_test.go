@@ -313,15 +313,25 @@ func TestInstancerLoopIndex(t *testing.T) {
 		client = newIndexTestClient(newTestClient(consulState), errs)
 	)
 
+	// Manejar errores desde la goroutine secundaria en la goroutine principal
 	go func() {
 		for err := range errs {
-			t.Error(err)
-			t.FailNow()
+			t.Error(err) // Enviar el error
 		}
 	}()
 
 	instancer := NewInstancer(client, logger, "search", []string{"api"}, true)
 	defer instancer.Stop()
 
+	// Usar un tiempo de espera para verificar si el bucle sigue ejecutándose
 	time.Sleep(2 * time.Second)
+
+	select {
+	case err := <-errs:
+		if err != nil {
+			t.Fatalf("Error in instancer loop: %v", err)
+		}
+	default:
+		// No hay errores, continuar
+	}
 }

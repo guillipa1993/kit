@@ -142,3 +142,25 @@ func TestMultipleSubscriberBefore(t *testing.T) {
 
 	wg.Wait()
 }
+
+func testRequest(t *testing.T, c *nats.Conn, handler *natstransport.Subscriber) TestResponse {
+	sub, err := c.QueueSubscribe("natstransport.test", "natstransport", handler.ServeMsg(c))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer sub.Unsubscribe()
+
+	r, err := c.Request("natstransport.test", []byte("test data"), 2*time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var resp TestResponse
+	err = json.Unmarshal(r.Data, &resp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return resp
+}
+

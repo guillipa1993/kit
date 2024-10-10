@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 	"testing"
-	"time"
 
 	natstransport "github.com/go-kit/kit/transport/nats"
 	"github.com/nats-io/nats.go"

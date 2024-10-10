@@ -42,7 +42,7 @@ func TestEncodeProtoRequest(t *testing.T) {
 	}
 
 	if !proto.Equal(&got, cat) {
-		t.Errorf("expected cats to be equal but got:\n\n%#v\n\nwant:\n\n%#v", got, cat)
+		t.Errorf("expected cats to be equal but got:\n\n%#v\n\nwant:\n\n%#v", &got, cat)
 		return
 	}
 }
@@ -86,7 +86,7 @@ func TestEncodeProtoResponse(t *testing.T) {
 	}
 
 	if !proto.Equal(&got, cat) {
-		t.Errorf("expected cats to be equal but got:\n\n%#v\n\nwant:\n\n%#v", got, cat)
+		t.Errorf("expected cats to be equal but got:\n\n%#v\n\nwant:\n\n%#v", &got, cat)
 		return
 	}
 }

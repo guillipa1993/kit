@@ -1,0 +1,27 @@
+name: "CI for Go Kit using library"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ci-pipeline:
+    uses: guillipa1993/devops-pipelines-ci-cd/.github/workflows/go-ci.yml@main
+    with:
+      language: 'go'
+      go-version: '1.18'
+      project-path: ''
+      build-configuration: ''
+      additional-install-commands: ''
+      run-tests: true
+      run-check-code-format: true
+      run-code-analysis: true
+      run-build-artifact: true
+      run-upload-coverage: true
+      run-lint: true
+      run-clean-up: true
+      environment-variables: ''

@@ -1,4 +1,4 @@
-name: "CI for Go Kit using library"
+name: "CI for Go Kit using library" #
 
 on:
   push:
